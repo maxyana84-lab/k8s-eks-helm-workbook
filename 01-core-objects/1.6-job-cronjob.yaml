@@ -1,0 +1,31 @@
+# Exercise 1.6: a Job (pi to 2000 digits) and a CronJob (date every 5 minutes)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 100
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pi
+          image: perl:5.40
+          command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: print-date
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: date
+              image: busybox:1.36
+              command: ["sh", "-c", "date"]

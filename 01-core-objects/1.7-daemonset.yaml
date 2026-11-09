@@ -1,0 +1,31 @@
+# Exercise 1.7: DaemonSet log-collector on every node, including the control plane
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-collector
+spec:
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      tolerations:
+        # also run on control-plane nodes (the hint of the workbook)
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: fluentd
+          # pinned instead of "latest" from the workbook
+          image: fluent/fluentd:v1.17-debian-1
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log

@@ -6,7 +6,7 @@ and is checked in CI.
 
 | Section | Folder | Status |
 |---|---|---|
-| 1. Core Kubernetes Objects | `01-core-objects/` | in progress |
+| 1. Core Kubernetes Objects | `01-core-objects/` | done |
 | 2. Namespaces & Resource Management | | planned |
 | 3. Networking & Ingress | | planned |
 | 4. Storage | | planned |

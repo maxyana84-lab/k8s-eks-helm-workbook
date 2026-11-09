@@ -1,0 +1,8 @@
+# One control-plane and two workers: needed for the DaemonSet (one Pod per node),
+# and later for affinity, taints and drain exercises.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
