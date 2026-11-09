@@ -27,7 +27,11 @@ query() { curl -fsS -m 10 --get http://localhost:19090/api/v1/query --data-urlen
 up_two() { [ "$(query 'sum(up{job="prom-example"})' | jq -r '.data.result[0].value[1] // "0"')" = "2" ]; }
 retry 240 up_two || { query 'up{job="prom-example"}' || true; fail "Prometheus does not scrape the 2 Pods of the application (up != 2)"; }
 echo "the 2 Pods of prom-example are scraped: up = 2"
-# the application's own metric is there
+# the application's own metric: the counter http_requests_total has no series until the first requests, so send some
+kubectl run traffic --image=busybox:1.36 --restart=Never -- \
+  sh -c 'i=0; while [ $i -lt 20 ]; do wget -qO /dev/null http://prom-example:8080/; i=$((i+1)); sleep 1; done'
+kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/traffic --timeout=120s
+kubectl delete pod traffic --wait=true
 has_metric() { [ "$(query 'sum(http_requests_total{job="prom-example"})' | jq -r '.data.result | length')" = "1" ]; }
 retry 90 has_metric || fail "the application metric http_requests_total is not in Prometheus"
 # 15 s interval
