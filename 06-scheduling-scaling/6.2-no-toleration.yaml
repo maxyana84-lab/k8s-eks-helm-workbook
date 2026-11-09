@@ -1,0 +1,18 @@
+# Exercise 6.2: Pods without a toleration: they must not land on the tainted node.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: no-toleration
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: no-toleration
+  template:
+    metadata:
+      labels:
+        app: no-toleration
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25

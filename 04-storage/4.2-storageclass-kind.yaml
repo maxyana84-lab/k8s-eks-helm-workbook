@@ -1,0 +1,21 @@
+# Exercise 4.2 on kind: the same mechanism (StorageClass -> PVC -> PV created on demand) with the local-path
+# provisioner that kind ships with. Used by CI, because EBS exists only in AWS.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-storage-local
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fast-pvc-local
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-storage-local
+  resources:
+    requests:
+      storage: 1Gi

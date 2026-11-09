@@ -1,0 +1,37 @@
+# Exercise 4.1: static provisioning. A hostPath PV (1Gi, ReadWriteOnce, /mnt/data), a matching PVC and a Pod.
+# hostPath lives on one node, so the PV is pinned to a node with a label (the test labels one worker):
+#   kubectl label node <node> workbook-storage=hostpath
+# storageClassName "manual" exists nowhere, which keeps the PVC from being served by a default StorageClass.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data
+    type: DirectoryOrCreate
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: workbook-storage
+              operator: In
+              values: ["hostpath"]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,17 @@
+# Exercise 6.1: required node affinity: only nodes labelled disk=ssd (kubectl label node <node> disk=ssd)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssd-pod
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: disk
+                operator: In
+                values: ["ssd"]
+  containers:
+    - name: nginx
+      image: nginx:1.25

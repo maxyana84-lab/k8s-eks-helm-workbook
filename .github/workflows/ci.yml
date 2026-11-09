@@ -20,10 +20,18 @@ jobs:
       - name: Validate manifests
         run: scripts/validate.sh
 
-  section-01:
+  # sections 1, 2, 4, 5, 6 share one kind cluster layout (1 control-plane, 2 workers)
+  kind-sections:
+    name: section-${{ matrix.n }}
     runs-on: ubuntu-24.04
     needs: validate
-    timeout-minutes: 25
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      # at most 2 kind clusters at a time (plus section-03): runs with more parallel jobs were dropped by GitHub
+      max-parallel: 2
+      matrix:
+        n: ["01", "02", "04", "05", "06"]
     steps:
       - uses: actions/checkout@v4
       - name: Create a kind cluster (1 control-plane, 2 workers)
@@ -32,28 +40,8 @@ jobs:
           version: v0.24.0
           node_image: kindest/node:v1.31.0
           config: scripts/kind-config.yaml
-      - name: Run the exercises of section 1
-        run: scripts/test-01.sh
-      - name: Debug info on failure
-        if: failure()
-        run: |
-          kubectl get pods -A -o wide || true
-          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
-
-  section-02:
-    runs-on: ubuntu-24.04
-    needs: validate
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v4
-      - name: Create a kind cluster
-        uses: helm/kind-action@v1.10.0
-        with:
-          version: v0.24.0
-          node_image: kindest/node:v1.31.0
-          config: scripts/kind-config.yaml
-      - name: Run the exercises of section 2
-        run: scripts/test-02.sh
+      - name: Run the exercises of section ${{ matrix.n }}
+        run: scripts/test-${{ matrix.n }}.sh
       - name: Debug info on failure
         if: failure()
         run: |

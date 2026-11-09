@@ -1,0 +1,17 @@
+# Exercise 4.2 on kind: the first consumer of the claim; the PV is created when this Pod is scheduled
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fast-pod
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo data > /data/file; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: fast-pvc-local

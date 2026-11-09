@@ -80,8 +80,9 @@ kubectl delete -f 1.5-services.yaml --wait=true
 step "1.6 Job and CronJob"
 kubectl apply -f 1.6-job-cronjob.yaml
 kubectl wait --for=condition=complete job/pi --timeout=100s
-kubectl logs job/pi | head -c 40 | grep -q '^3.14159' || fail "pi is not printed"
-[ "$(kubectl logs job/pi | tr -d '\n' | wc -c)" -ge 2000 ] || fail "less than 2000 digits"
+pi_out=$(kubectl logs job/pi)   # read it all: a reader that quits early can kill kubectl with SIGPIPE
+case "$pi_out" in 3.14159*) ;; *) fail "pi is not printed" ;; esac
+[ "$(printf '%s' "$pi_out" | tr -d '\n' | wc -c)" -ge 2000 ] || fail "less than 2000 digits"
 [ "$(kubectl get cronjob print-date -o jsonpath='{.spec.schedule}')" = "*/5 * * * *" ] || fail "wrong schedule"
 kubectl create job --from=cronjob/print-date print-date-manual
 kubectl wait --for=condition=complete job/print-date-manual --timeout=120s
