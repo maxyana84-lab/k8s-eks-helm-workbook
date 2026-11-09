@@ -82,8 +82,9 @@ helm install withdb ./myapp -n db --create-namespace --set hooks.enabled=false \
   --wait --timeout 10m
 kubectl rollout status statefulset/myapp-postgresql -n db --timeout=300s
 [ "$(kubectl get pvc -n db -o jsonpath='{.items[0].spec.resources.requests.storage}')" = "1Gi" ] || fail "persistence size is not taken from values"
-got=$(kubectl exec -n db myapp-postgresql-0 -- env PGPASSWORD="$pw" psql -h 127.0.0.1 -U app -d appdb -tAc 'select 1')
-[ "$got" = "1" ] || fail "cannot query the database with the user and the database of values (got '$got')"
+# the Pod can be Ready while the init server of the Bitnami image is still being replaced by the real one: retry
+db_query() { got=$(kubectl exec -n db myapp-postgresql-0 -- env PGPASSWORD="$pw" psql -h 127.0.0.1 -U app -d appdb -tAc 'select 1' 2>/dev/null) && [ "$got" = "1" ]; }
+retry 120 db_query || fail "cannot query the database with the user and the database of values (got '${got:-}')"
 helm uninstall withdb -n db
 kubectl delete namespace db --wait=true
 
