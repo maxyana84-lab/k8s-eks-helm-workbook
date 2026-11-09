@@ -11,7 +11,7 @@ fi
 files=()
 for d in "${dirs[@]}"; do
   [ -d "$d" ] || continue
-  while IFS= read -r f; do files+=("$f"); done < <(find "$d" -type f \( -name '*.yaml' -o -name '*.yml' \) -not -path '*/charts/*' -not -path '*/templates/*' | sort)
+  while IFS= read -r f; do files+=("$f"); done < <(find "$d" -type f \( -name '*.yaml' -o -name '*.yml' \) -not -path '*/charts/*' -not -path '*/templates/*' -not -name '*values*.yaml' | sort)
 done
 if [ ${#files[@]} -eq 0 ]; then echo "no manifests found"; exit 0; fi
 kubeconform -strict -ignore-missing-schemas -kubernetes-version "$K8S_VERSION" -summary "${files[@]}"

@@ -1,0 +1,10 @@
+# Exercise 7.3: values for the eks/aws-load-balancer-controller Helm chart (1.13.4).
+# The service account is created beforehand by eksctl with the IAM policy of the controller (see the README):
+#   helm repo add eks https://aws.github.io/eks-charts
+#   helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
+#     --version 1.13.4 -f 7.3-alb-controller-values.yaml --set vpcId=<vpc id of the cluster>
+clusterName: dev-cluster
+region: eu-west-1
+serviceAccount:
+  create: false              # created by "eksctl create iamserviceaccount", with the IRSA annotation
+  name: aws-load-balancer-controller

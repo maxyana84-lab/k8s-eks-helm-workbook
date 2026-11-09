@@ -1,0 +1,59 @@
+# Exercise 7.4: gp3 StorageClass with WaitForFirstConsumer and a StatefulSet that gets its volumes dynamically.
+# Needs the EBS CSI driver add-on (it is in 7.1-cluster.yaml; or: eksctl create addon --name aws-ebs-csi-driver ...).
+#   kubectl apply -f 7.4-ebs-statefulset.yaml
+#   kubectl get pvc,pv            # one EBS gp3 volume per replica, in the zone of its Pod
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+volumeBindingMode: WaitForFirstConsumer   # the volume is created in the zone where the Pod is scheduled
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebs-demo
+spec:
+  clusterIP: None
+  selector:
+    app: ebs-demo
+  ports:
+    - port: 80
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ebs-demo
+spec:
+  serviceName: ebs-demo
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ebs-demo
+  template:
+    metadata:
+      labels:
+        app: ebs-demo
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          command: ["sh", "-c", "echo \"$(hostname) $(date)\" >> /data/log.txt; sleep 3600"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: gp3
+        resources:
+          requests:
+            storage: 5Gi

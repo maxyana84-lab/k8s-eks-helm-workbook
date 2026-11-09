@@ -1,0 +1,61 @@
+# Exercise 7.3: an internet-facing ALB with IP targets in front of a small echo application.
+# IP targets send the traffic straight to the Pod IPs (the VPC CNI gives Pods VPC addresses), not through the nodes.
+#   kubectl apply -f 7.3-ingress.yaml
+#   kubectl get ingress echo      # ADDRESS is the DNS name of the ALB after a minute or two
+#   curl http://<ADDRESS>/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: echo
+  template:
+    metadata:
+      labels:
+        app: echo
+    spec:
+      containers:
+        - name: echo
+          image: hashicorp/http-echo:1.0
+          args: ["-listen=:8080", "-text=hello from the ALB"]
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo
+spec:
+  selector:
+    app: echo
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: echo
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: echo
+                port:
+                  number: 80

@@ -1,0 +1,15 @@
+# Exercise 7.6: a Fargate profile for the namespace "serverless".
+#   eksctl create fargateprofile -f 7.6-fargate.yaml
+#   kubectl create namespace serverless && kubectl apply -f 7.6-workload.yaml
+#   kubectl get nodes -L eks.amazonaws.com/compute-type      # a node "fargate-ip-..." with the label fargate
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dev-cluster
+  region: eu-west-1
+
+fargateProfiles:
+  - name: fp-serverless
+    selectors:
+      - namespace: serverless

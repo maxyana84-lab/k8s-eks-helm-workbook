@@ -1,0 +1,20 @@
+# Exercise 7.2: IRSA. eksctl creates the IAM role (trusting the cluster's OIDC provider, only for this service
+# account) with the AWS managed policy AmazonS3ReadOnlyAccess, and the Kubernetes ServiceAccount with the
+# annotation eks.amazonaws.com/role-arn:
+#   eksctl create iamserviceaccount -f 7.2-irsa.yaml --approve
+#   kubectl get sa s3-reader -o yaml | grep role-arn
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dev-cluster
+  region: eu-west-1
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: s3-reader
+        namespace: default
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess

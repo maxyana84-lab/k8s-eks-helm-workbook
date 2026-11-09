@@ -1,0 +1,24 @@
+# Exercise 7.5: more CPU than the nodes have: the extra Pods stay Pending and the autoscaler adds a node.
+#   kubectl apply -f 7.5-stress.yaml; kubectl get pods -w; kubectl get nodes -w
+# Delete it and the added node is removed after about 10 minutes (scale-down-unneeded-time).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stress
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: stress
+  template:
+    metadata:
+      labels:
+        app: stress
+    spec:
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
