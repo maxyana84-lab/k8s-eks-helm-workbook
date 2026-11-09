@@ -1,0 +1,10 @@
+# Exercise 2.3: a Pod without resources; the LimitRange fills them in
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-resources
+  namespace: dev
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25
