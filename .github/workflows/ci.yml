@@ -28,6 +28,8 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: false
+      # at most 2 kind clusters at a time (plus section-03): runs with more parallel jobs were dropped by GitHub
+      max-parallel: 2
       matrix:
         n: ["01", "02", "04", "05", "06"]
     steps:
