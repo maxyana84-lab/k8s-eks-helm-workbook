@@ -86,7 +86,8 @@ kubectl logs job/pi | head -c 40 | grep -q '^3.14159' || fail "pi is not printed
 kubectl create job --from=cronjob/print-date print-date-manual
 kubectl wait --for=condition=complete job/print-date-manual --timeout=120s
 kubectl delete -f 1.6-job-cronjob.yaml --wait=true
-kubectl delete job print-date-manual
+# the manual Job is owned by the CronJob and is already gone with it
+kubectl delete job print-date-manual --ignore-not-found
 
 step "1.7 DaemonSet"
 nodes=$(kubectl get nodes --no-headers | wc -l)
