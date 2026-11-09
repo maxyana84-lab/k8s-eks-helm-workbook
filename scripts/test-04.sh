@@ -36,6 +36,7 @@ kubectl apply -f 4.2-storageclass-kind.yaml
 sleep 5
 [ "$(kubectl get pvc fast-pvc-local -o jsonpath='{.status.phase}')" = "Pending" ] || fail "the PVC must wait for the first consumer"
 [ "$(kubectl get pv --no-headers 2>/dev/null | wc -l)" = "0" ] || fail "no PV must exist before the Pod"
+kubectl apply -f 4.2-pod-kind.yaml
 kubectl wait --for=condition=Ready pod/fast-pod --timeout=180s
 bound_local() { [ "$(kubectl get pvc fast-pvc-local -o jsonpath='{.status.phase}')" = "Bound" ]; }
 retry 60 bound_local || fail "the PVC fast-pvc-local is not Bound"
@@ -43,7 +44,7 @@ pv=$(kubectl get pvc fast-pvc-local -o jsonpath='{.spec.volumeName}')
 [ -n "$pv" ] || fail "no PV was created"
 [ "$(kubectl get pv "$pv" -o jsonpath='{.spec.claimRef.name}')" = "fast-pvc-local" ] || fail "the created PV does not belong to the claim"
 echo "PV created automatically: $pv"
-kubectl delete -f 4.2-storageclass-kind.yaml --wait=true
+kubectl delete -f 4.2-pod-kind.yaml -f 4.2-storageclass-kind.yaml --wait=true
 gone() { [ "$(kubectl get pv --no-headers 2>/dev/null | wc -l)" = "0" ]; }
 retry 60 gone || fail "reclaimPolicy Delete: the PV was not removed with its claim"
 

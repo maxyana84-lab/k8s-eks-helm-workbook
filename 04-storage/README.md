@@ -3,7 +3,7 @@
 | Exercise | Files | Verified |
 |---|---|---|
 | 4.1 PV and PVC (static provisioning) | `4.1-pv-pvc.yaml`, `4.1-pod.yaml` | kind (CI, `scripts/test-04.sh`) |
-| 4.2 Dynamic provisioning with a StorageClass | `4.2-storageclass-ebs.yaml` (EKS), `4.2-storageclass-kind.yaml` (kind) | the mechanism on kind; the EBS file by kubeconform only |
+| 4.2 Dynamic provisioning with a StorageClass | `4.2-storageclass-ebs.yaml` (EKS), `4.2-storageclass-kind.yaml` + `4.2-pod-kind.yaml` (kind) | the mechanism on kind; the EBS file by kubeconform only |
 | 4.3 EFS with ReadWriteMany | `4.3-efs.yaml` | kubeconform only, needs AWS |
 
 ## 4.1 Static provisioning
