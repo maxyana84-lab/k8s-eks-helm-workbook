@@ -13,3 +13,8 @@ venv/
 .vscode/
 .idea/
 .DS_Store
+
+# Helm: downloaded subcharts and the generated lock file
+08-helm/myapp/charts/
+08-helm/myapp/Chart.lock
+*.tgz
