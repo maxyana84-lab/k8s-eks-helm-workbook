@@ -31,7 +31,7 @@ jobs:
       # at most 2 kind clusters at a time (plus section-03): runs with more parallel jobs were dropped by GitHub
       max-parallel: 2
       matrix:
-        n: ["01", "02", "04", "05", "06", "08"]
+        n: ["01", "02", "04", "05", "06", "08", "10", "10-monitoring"]
     steps:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.3.0
@@ -51,10 +51,17 @@ jobs:
           kubectl get pods -A -o wide || true
           kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
 
-  section-03:
+  # sections that need a CNI which enforces NetworkPolicy and an ingress controller (kind + Calico + ingress-nginx)
+  networking-sections:
+    name: section-${{ matrix.n }}
     runs-on: ubuntu-24.04
     needs: validate
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        n: ["03", "09", "10-canary"]
     steps:
       - uses: actions/checkout@v4
       - name: Install kind
@@ -65,8 +72,8 @@ jobs:
         run: kind create cluster --name workbook --image kindest/node:v1.31.0 --config scripts/kind-config-networking.yaml --wait 0s
       - name: Install Calico and ingress-nginx
         run: scripts/setup-networking-cluster.sh
-      - name: Run the exercises of section 3
-        run: scripts/test-03.sh
+      - name: Run the exercises of section ${{ matrix.n }}
+        run: scripts/test-${{ matrix.n }}.sh
       - name: Debug info on failure
         if: failure()
         run: |
