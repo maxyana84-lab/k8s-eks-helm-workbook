@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+      - name: Validate manifests
+        run: scripts/validate.sh
+
+  section-01:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a kind cluster (1 control-plane, 2 workers)
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          node_image: kindest/node:v1.31.0
+          config: scripts/kind-config.yaml
+      - name: Run the exercises of section 1
+        run: scripts/test-01.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true

@@ -1,0 +1,23 @@
+# Exercise 1.2: multi-container Pod (sidecar) sharing an emptyDir
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-pod
+spec:
+  volumes:
+    - name: logs
+      emptyDir: {}
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "while true; do date >> /var/log/app.log; sleep 2; done"]
+      volumeMounts:
+        - name: logs
+          mountPath: /var/log
+    - name: sidecar
+      image: busybox:1.36
+      # touch first: the sidecar may start before the app creates the file
+      command: ["sh", "-c", "touch /var/log/app.log && tail -F /var/log/app.log"]
+      volumeMounts:
+        - name: logs
+          mountPath: /var/log
