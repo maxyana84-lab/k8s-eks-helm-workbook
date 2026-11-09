@@ -1,0 +1,11 @@
+apiVersion: v2
+name: myapp
+description: A small web application (Deployment, Service, ConfigMap) with hooks and an optional PostgreSQL subchart
+type: application
+version: 0.1.0
+appVersion: "1.25"
+dependencies:
+  - name: postgresql
+    version: "16.x.x"                          # pinned to a major version
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: postgresql.enabled              # exercise 8.6, off by default

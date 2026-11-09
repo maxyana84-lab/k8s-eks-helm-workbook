@@ -1,0 +1,4 @@
+{{ include "myapp.fullname" . }} is installed (release {{ .Release.Name }}, revision {{ .Release.Revision }}).
+
+  kubectl get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+  kubectl port-forward svc/{{ include "myapp.fullname" . }} 8080:{{ .Values.service.port }}

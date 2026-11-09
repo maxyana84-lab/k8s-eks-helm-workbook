@@ -1,0 +1,29 @@
+name: publish-chart
+
+# Exercise 8.7: publishes the chart myapp to GitHub Container Registry as an OCI artifact.
+# Started by hand (Actions -> publish-chart -> Run workflow) or by a tag chart-v*.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["chart-v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.3.0
+        with:
+          version: v3.17.3
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Package and push
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          # GHCR needs a lower-case owner
+          REGISTRY="oci://ghcr.io/$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')/charts" ./08-helm/8.7-publish.sh

@@ -13,7 +13,7 @@ and is checked in CI.
 | 5. RBAC & Security | `05-rbac-security/` | done |
 | 6. Scheduling & Scaling | `06-scheduling-scaling/` | done |
 | 7. Amazon EKS | `07-eks/` | written and validated; not run (needs a real AWS account) |
-| 8. Helm | | planned |
+| 8. Helm | `08-helm/` | done |
 | 9. Troubleshooting & Debugging | | planned |
 | 10. Production Patterns | | planned |
 

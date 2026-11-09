@@ -31,9 +31,12 @@ jobs:
       # at most 2 kind clusters at a time (plus section-03): runs with more parallel jobs were dropped by GitHub
       max-parallel: 2
       matrix:
-        n: ["01", "02", "04", "05", "06"]
+        n: ["01", "02", "04", "05", "06", "08"]
     steps:
       - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.3.0
+        with:
+          version: v3.17.3
       - name: Create a kind cluster (1 control-plane, 2 workers)
         uses: helm/kind-action@v1.10.0
         with:

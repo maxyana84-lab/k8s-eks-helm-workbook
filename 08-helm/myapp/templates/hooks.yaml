@@ -1,0 +1,42 @@
+{{- if .Values.hooks.enabled }}
+# Exercise 8.5. "before-hook-creation": a hook Job of an earlier run is deleted before the new one is created
+# (the last Job stays after the release, so that its logs can be read).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "myapp.fullname" . }}-migrate
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: {{ .Values.hooks.image }}
+          command: ["sh", "-c", "echo 'running database migrations'; sleep 3; echo 'migrations done'"]
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "myapp.fullname" . }}-notify
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: notify
+          image: {{ .Values.hooks.image }}
+          command: ["sh", "-c", "echo 'release {{ .Release.Name }} installed (revision {{ .Release.Revision }})'"]
+{{- end }}

@@ -1,0 +1,11 @@
+# Exercise 8.1: values for bitnami/nginx. The workbook sets replicaCount=3 and service.type=NodePort.
+# Bitnami stopped publishing versioned images under docker.io/bitnami; the same tags are in bitnamilegacy.
+global:
+  security:
+    allowInsecureImages: true
+image:
+  registry: docker.io
+  repository: bitnamilegacy/nginx
+replicaCount: 3
+service:
+  type: NodePort
