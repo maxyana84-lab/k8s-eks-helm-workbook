@@ -1,0 +1,27 @@
+# Exercise 4.2 on EKS: StorageClass fast-storage for gp3 EBS volumes. Needs the EBS CSI driver (exercise 7.4).
+# The workbook names the provisioner kubernetes.io/aws-ebs: that in-tree provisioner was removed from Kubernetes
+# (1.27) and EKS needs the CSI one, ebs.csi.aws.com.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-storage
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fast-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-storage
+  resources:
+    requests:
+      storage: 10Gi

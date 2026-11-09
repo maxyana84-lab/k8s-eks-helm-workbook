@@ -82,3 +82,63 @@ jobs:
           kubectl get pods -A -o wide || true
           kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
           kubectl get networkpolicy -A || true
+
+  section-04:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a kind cluster (1 control-plane, 2 workers)
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          node_image: kindest/node:v1.31.0
+          config: scripts/kind-config.yaml
+      - name: Run the exercises of section 4
+        run: scripts/test-04.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+
+  section-05:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a kind cluster (1 control-plane, 2 workers)
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          node_image: kindest/node:v1.31.0
+          config: scripts/kind-config.yaml
+      - name: Run the exercises of section 5
+        run: scripts/test-05.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+
+  section-06:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a kind cluster (1 control-plane, 2 workers)
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          node_image: kindest/node:v1.31.0
+          config: scripts/kind-config.yaml
+      - name: Run the exercises of section 6
+        run: scripts/test-06.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true

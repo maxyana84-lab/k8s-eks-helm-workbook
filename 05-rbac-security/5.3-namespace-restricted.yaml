@@ -1,0 +1,8 @@
+# Exercise 5.3: the prod namespace enforces the "restricted" Pod Security Standard.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest

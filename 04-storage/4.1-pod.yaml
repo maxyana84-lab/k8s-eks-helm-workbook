@@ -1,0 +1,18 @@
+# Exercise 4.1: the Pod appends one line to /data/log.txt every time it starts.
+# After the Pod is deleted and created again the file has two lines: the data persisted.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-pod
+spec:
+  containers:
+    - name: writer
+      image: busybox:1.36
+      command: ["sh", "-c", "echo \"started $(date +%s)\" >> /data/log.txt; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: data-pvc

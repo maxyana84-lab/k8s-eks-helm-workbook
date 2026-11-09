@@ -1,0 +1,17 @@
+# Exercise 6.2: a toleration only ALLOWS the tainted node, it does not choose it. The nodeSelector does the choosing
+# (the node is labelled env=prod and tainted env=prod:NoSchedule).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerating-pod
+spec:
+  nodeSelector:
+    env: prod
+  tolerations:
+    - key: env
+      operator: Equal
+      value: prod
+      effect: NoSchedule
+  containers:
+    - name: nginx
+      image: nginx:1.25

@@ -1,0 +1,19 @@
+# Exercise 6.3: the load. Delete it (kubectl delete -f 6.3-load.yaml) and the HPA scales back after ~5 minutes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.36
+          command: ["sh", "-c", "while true; do wget -q -O- http://php-apache >/dev/null; done"]

@@ -9,9 +9,9 @@ and is checked in CI.
 | 1. Core Kubernetes Objects | `01-core-objects/` | done |
 | 2. Namespaces & Resource Management | `02-namespaces-resources/` | done |
 | 3. Networking & Ingress | `03-networking/` | done |
-| 4. Storage | | planned |
-| 5. RBAC & Security | | planned |
-| 6. Scheduling & Scaling | | planned |
+| 4. Storage | `04-storage/` | 4.1, 4.2 run on kind; the AWS parts are validated only |
+| 5. RBAC & Security | `05-rbac-security/` | done |
+| 6. Scheduling & Scaling | `06-scheduling-scaling/` | done |
 | 7. Amazon EKS | | planned (needs a real AWS account) |
 | 8. Helm | | planned |
 | 9. Troubleshooting & Debugging | | planned |
