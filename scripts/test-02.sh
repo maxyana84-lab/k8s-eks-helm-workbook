@@ -54,6 +54,9 @@ retry 60 replica_failure || fail "the ReplicaSet does not report the quota error
 kubectl get rs -n dev -l app=quota-test -o jsonpath='{.items[0].status.conditions[?(@.type=="ReplicaFailure")].message}'; echo
 [ "$(kubectl get pods -n dev --no-headers | wc -l)" -le 5 ] || fail "more than 5 Pods in dev"
 kubectl delete deployment quota-test -n dev --wait=true
+# the Pods of the Deployment terminate asynchronously and keep the quota used until they are gone
+only_nginx_left() { [ "$(kubectl get quota dev-quota -n dev -o jsonpath='{.status.used.pods}')" = "1" ]; }
+retry 120 only_nginx_left || fail "the quota was not released after the Deployment was deleted"
 # 2) a Pod that asks for more CPU than the quota
 out=$(kubectl apply -n dev -f - 2>&1 <<'EOF' || true
 apiVersion: v1
