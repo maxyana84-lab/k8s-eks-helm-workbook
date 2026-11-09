@@ -1,0 +1,24 @@
+# Exercise 7.6: the workload; the namespace must exist (kubectl create namespace serverless) before the profile matches.
+# Every Pod of a Fargate profile gets its own micro-VM (and node), and needs resource requests: Fargate sizes the VM from them.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fargate-demo
+  namespace: serverless
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fargate-demo
+  template:
+    metadata:
+      labels:
+        app: fargate-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi

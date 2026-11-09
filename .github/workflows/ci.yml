@@ -70,3 +70,23 @@ jobs:
           kubectl get pods -A -o wide || true
           kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
           kubectl get networkpolicy -A || true
+
+  eks-configs:
+    runs-on: ubuntu-24.04
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install eksctl
+        run: |
+          curl -sSL https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin/
+          eksctl version
+      - name: Validate the ClusterConfig files against the eksctl schema
+        run: |
+          pip install --quiet jsonschema pyyaml
+          eksctl utils schema > /tmp/eksctl-schema.json
+          scripts/validate-eksctl.py /tmp/eksctl-schema.json 07-eks/*.yaml
+      - name: IAM policies are valid JSON
+        run: for f in 07-eks/iam/*.json; do python3 -m json.tool "$f" > /dev/null && echo "$f ok"; done
+      - name: Shell scripts are valid
+        run: bash -n 07-eks/7.3-create-alb-iam.sh
