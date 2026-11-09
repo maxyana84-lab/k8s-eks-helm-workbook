@@ -1,0 +1,15 @@
+# Secrets and local state, never commit these
+.env
+.env.*
+*.pem
+*.key
+*.tfstate
+*.tfstate.*
+kubeconfig
+*.kubeconfig
+# Local
+__pycache__/
+venv/
+.vscode/
+.idea/
+.DS_Store
