@@ -1,0 +1,31 @@
+# Exercise 9.3 (5): a default-deny policy for the namespace ...
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: debug-svc
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# ... and the policy that lets the client in: the fix of fault 5
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-client-to-web
+  namespace: debug-svc
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              role: client
+      ports:
+        - protocol: TCP
+          port: 80

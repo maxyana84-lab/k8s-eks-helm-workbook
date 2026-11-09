@@ -1,0 +1,117 @@
+# Exercise 10.2: canary with the nginx ingress controller. Two Ingresses for the same host and path: the stable one, and
+# the canary one with the annotations canary: "true" and canary-weight (the percent of requests sent to the canary Service).
+# The controller picks the Ingress with the canary annotations as the canary of the other one.
+#   kubectl annotate ingress web-canary -n canary-demo nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: canary-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-stable
+  namespace: canary-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-stable
+  template:
+    metadata:
+      labels:
+        app: web-stable
+    spec:
+      containers:
+        - name: app
+          image: hashicorp/http-echo:1.0
+          args: ["-listen=:8080", "-text=stable"]
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-stable
+  namespace: canary-demo
+spec:
+  selector:
+    app: web-stable
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-canary
+  namespace: canary-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-canary
+  template:
+    metadata:
+      labels:
+        app: web-canary
+    spec:
+      containers:
+        - name: app
+          image: hashicorp/http-echo:1.0
+          args: ["-listen=:8080", "-text=canary"]
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-canary
+  namespace: canary-demo
+spec:
+  selector:
+    app: web-canary
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-stable
+  namespace: canary-demo
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: canary.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stable
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-canary
+  namespace: canary-demo
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: canary.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-canary
+                port:
+                  number: 80

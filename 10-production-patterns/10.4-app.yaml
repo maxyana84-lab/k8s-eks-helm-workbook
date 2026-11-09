@@ -1,0 +1,35 @@
+# Exercise 10.4: an application that exposes Prometheus metrics on /metrics (port 8080).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prom-example
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prom-example
+  template:
+    metadata:
+      labels:
+        app: prom-example
+    spec:
+      containers:
+        - name: app
+          image: quay.io/brancz/prometheus-example-app:v0.3.0
+          ports:
+            - name: web
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prom-example
+  labels:
+    app: prom-example
+spec:
+  selector:
+    app: prom-example
+  ports:
+    - name: web
+      port: 8080
+      targetPort: web

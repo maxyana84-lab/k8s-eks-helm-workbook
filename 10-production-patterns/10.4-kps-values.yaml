@@ -1,0 +1,22 @@
+# Exercise 10.4: values for prometheus-community/kube-prometheus-stack, small enough for a kind cluster.
+# The Grafana admin password is NOT here: it is passed at install time (--set grafana.adminPassword=...).
+# The workbook hint says the default is admin / prom-operator: it is a well-known default, change it.
+alertmanager:
+  enabled: false
+nodeExporter:
+  enabled: false
+prometheus:
+  prometheusSpec:
+    # select every ServiceMonitor of the cluster, not only the ones labelled with the Helm release
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    retention: 2h
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+grafana:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi

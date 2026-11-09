@@ -1,0 +1,14 @@
+# Exercise 10.4: the custom ServiceMonitor: scrape /metrics of the Services labelled app=prom-example every 15 seconds.
+# The Prometheus Operator turns it into a scrape job; the job name is the name of the Service (prom-example).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prom-example
+spec:
+  selector:
+    matchLabels:
+      app: prom-example
+  endpoints:
+    - port: web
+      path: /metrics
+      interval: 15s

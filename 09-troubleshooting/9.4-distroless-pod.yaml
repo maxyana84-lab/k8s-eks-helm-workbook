@@ -1,0 +1,13 @@
+# Exercise 9.4: a Pod whose image has no shell and no tools (the pause image stands in for a distroless application):
+#   kubectl exec distroless -- sh                      -> executable file not found
+# Attach an ephemeral debug container that shares the process namespace of the container "pause":
+#   kubectl debug -it distroless --image=busybox:1.36 --target=pause
+# (CI runs the same without a terminal: kubectl debug ... -- sh -c "...", and reads the logs.)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: distroless
+spec:
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.9

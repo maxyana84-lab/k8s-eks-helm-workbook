@@ -1,0 +1,14 @@
+# Exercise 9.1: a Pod with a deliberate error: the container prints a message and exits with a failure, again and again.
+# Diagnose:  kubectl get pod crashing        -> STATUS CrashLoopBackOff, RESTARTS growing
+#            kubectl describe pod crashing   -> Last State: Terminated, Exit Code 1; Events: Back-off restarting failed container
+#            kubectl logs crashing           -> the log of the current (or last) run
+#            kubectl logs crashing --previous -> the log of the run before: the root cause
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashing
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo 'starting app'; echo 'fatal: cannot read /etc/app/app.conf' >&2; exit 1"]
