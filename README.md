@@ -7,8 +7,8 @@ and is checked in CI.
 | Section | Folder | Status |
 |---|---|---|
 | 1. Core Kubernetes Objects | `01-core-objects/` | done |
-| 2. Namespaces & Resource Management | | planned |
-| 3. Networking & Ingress | | planned |
+| 2. Namespaces & Resource Management | `02-namespaces-resources/` | done |
+| 3. Networking & Ingress | `03-networking/` | done |
 | 4. Storage | | planned |
 | 5. RBAC & Security | | planned |
 | 6. Scheduling & Scaling | | planned |

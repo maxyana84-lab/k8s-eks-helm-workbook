@@ -1,0 +1,13 @@
+# Exercise 2.2: quota of the dev namespace: 5 Pods, 2 CPU, 4Gi memory, 5 Services.
+# "CPU total" and "memory total" are the sums of the container requests.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-quota
+  namespace: dev
+spec:
+  hard:
+    pods: "5"
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    services: "5"

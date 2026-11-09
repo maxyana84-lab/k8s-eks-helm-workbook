@@ -39,3 +39,46 @@ jobs:
         run: |
           kubectl get pods -A -o wide || true
           kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+
+  section-02:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a kind cluster
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          node_image: kindest/node:v1.31.0
+          config: scripts/kind-config.yaml
+      - name: Run the exercises of section 2
+        run: scripts/test-02.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+
+  section-03:
+    runs-on: ubuntu-24.04
+    needs: validate
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kind
+        run: |
+          curl -sSLo kind https://github.com/kubernetes-sigs/kind/releases/download/v0.24.0/kind-linux-amd64
+          chmod +x kind && sudo mv kind /usr/local/bin/kind
+      - name: Create a kind cluster without the default CNI
+        run: kind create cluster --name workbook --image kindest/node:v1.31.0 --config scripts/kind-config-networking.yaml --wait 0s
+      - name: Install Calico and ingress-nginx
+        run: scripts/setup-networking-cluster.sh
+      - name: Run the exercises of section 3
+        run: scripts/test-03.sh
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+          kubectl get networkpolicy -A || true
