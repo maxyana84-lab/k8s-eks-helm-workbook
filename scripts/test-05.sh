@@ -19,7 +19,7 @@ expect no  delete pods --as="$sa" -n dev
 expect no  create deployments.apps --as="$sa" -n dev
 expect no  list secrets --as="$sa" -n dev
 expect no  list pods --as="$sa" -n default       # a Role is limited to its namespace
-kubectl auth can-i --list --as="$sa" -n dev | head -20
+kubectl auth can-i --list --as="$sa" -n dev
 
 step "5.2 ClusterRole for node access"
 kubectl apply -f 5.2-clusterrole-nodes.yaml
