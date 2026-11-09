@@ -62,11 +62,16 @@ kubectl rollout status deployment/httpd --timeout=180s
 for s in httpd-clusterip httpd-nodeport httpd-loadbalancer; do
   kubectl get endpoints "$s" -o jsonpath='{.subsets[0].addresses[0].ip}' | grep -q . || fail "$s has no endpoints"
 done
-# ClusterIP: from inside the cluster
-kubectl run curl-test --image=busybox:1.36 --restart=Never --rm -i -- wget -qO- http://httpd-clusterip | grep -q "It works" || fail "ClusterIP does not answer"
-# NodePort 30080: on a node
+# ClusterIP: from inside the cluster, with a long-lived helper Pod (kubectl run --rm -i can lose a fast output)
+kubectl run curl-test --image=busybox:1.36 --restart=Never -- sleep 300
+kubectl wait --for=condition=Ready pod/curl-test --timeout=120s
+clusterip_ok() { kubectl exec curl-test -- wget -qO- -T 5 http://httpd-clusterip | grep -q "It works"; }
+retry 30 clusterip_ok || fail "ClusterIP does not answer"
+kubectl delete pod curl-test --wait=true
+# NodePort 30080: on a node (the kind node image has curl, not wget)
 node=$(docker ps --format '{{.Names}}' | grep -m1 worker)
-retry 30 docker exec "$node" sh -c 'wget -qO- http://localhost:30080 | grep -q "It works"' || fail "NodePort 30080 does not answer on $node"
+nodeport_ok() { docker exec "$node" curl -fsS -m 5 http://localhost:30080 | grep -q "It works"; }
+retry 30 nodeport_ok || fail "NodePort 30080 does not answer on $node"
 # LoadBalancer: kind has no cloud controller, the external address stays pending (expected)
 [ "$(kubectl get svc httpd-loadbalancer -o jsonpath='{.spec.type}')" = "LoadBalancer" ] || fail "wrong type"
 echo "LoadBalancer external address: '$(kubectl get svc httpd-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[0].ip}')' (empty on kind, expected)"
